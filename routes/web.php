@@ -12,7 +12,8 @@
 */
 
 $router->get('/', function () use ($router) {
-    echo url();
+    $url['url'] = $_SERVER['HTTP_ORIGIN'];
+    return response($url);
     // return $router->app->version();
 });
 

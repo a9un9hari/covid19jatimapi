@@ -16,10 +16,13 @@ class CorsMiddleware
     public function handle($request, Closure $next)
     {
         $allowedDomains = [
-            'http://infoblitar.test'
+            'http://infoblitar.test',
+            'http://covid19.test'
         ];
 
-        $curUrl = url();
+        $curUrl = ( ! empty($_SERVER['HTTP_ORIGIN']) ) ? $_SERVER['HTTP_ORIGIN'] : '';
+        
+        $domainApproved = '*';
 
         if (in_array($curUrl, $allowedDomains)) {
             $domainApproved = $curUrl;
@@ -27,7 +30,7 @@ class CorsMiddleware
 
        //RULE HEADERSNYA HARUS KITA SET SECARA SPESIFIK SEPERTI INI 
         $headers = [
-            'Access-Control-Allow-Origin'      => $domainApproved,
+            'Access-Control-Allow-Origin'      => '*',
             'Access-Control-Allow-Methods'     => 'GET', //'POST, GET, OPTIONS, PUT, DELETE'
             'Access-Control-Allow-Credentials' => 'true',
             'Access-Control-Max-Age'           => '86400',
@@ -39,6 +42,8 @@ class CorsMiddleware
             //MAKA KITA KEMBALIKAN BAHWA METHOD TERSEBUT ADALAH OPTIONS
             return response()->json('{"method": "OPTIONS"}', 200, $headers);
         }
+
+        // dd($headers);
 
         //SELAIN ITU, KITA AKAN MENERUSKAN RESPONSE SEPERTI BIASA DENGAN MENGIKUT SERTAKAN HEADERS YANG SUDAH DITETAPKAN.
         $response = $next($request);
