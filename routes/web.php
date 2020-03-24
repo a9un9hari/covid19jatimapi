@@ -11,9 +11,10 @@
 |
 */
 
-// $router->get('/', function () use ($router) {
-//     return $router->app->version();
-// });
+$router->get('/', function () use ($router) {
+    echo url();
+    // return $router->app->version();
+});
 
 $router->get('/blitar', 'ExampleController@blitar');
 $router->get('/tes', 'ExampleController@index');
