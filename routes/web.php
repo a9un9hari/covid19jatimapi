@@ -12,9 +12,9 @@
 */
 
 $router->get('/', function () use ($router) {
-    $url['url'] = $_SERVER['HTTP_ORIGIN'];
-    return response($url);
-    // return $router->app->version();
+    // $url['url'] = $_SERVER['HTTP_ORIGIN'];
+    // return response($url);
+    return $router->app->version();
 });
 
 $router->get('/blitar', 'ExampleController@blitar');
