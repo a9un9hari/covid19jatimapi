@@ -16,7 +16,7 @@ class CorsMiddleware
     public function handle($request, Closure $next)
     {
         $allowedDomains = [
-            'http://covid19.test'
+            'http://infoblitar.test'
         ];
 
         $curUrl = url();
