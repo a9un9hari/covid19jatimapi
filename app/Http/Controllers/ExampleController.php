@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use KubAT\PhpSimple\HtmlDomParser;
 use App\Data;
+use DB;
 
 class ExampleController extends Controller
 {
@@ -68,14 +69,74 @@ class ExampleController extends Controller
     
         return response($dataJadi);
     }
+    public function status()
+    {
+        if ( ! empty(DB::connection()->getDatabaseName()) ) {
+            $return['local'] = [
+                'connection' => 'up',
+                'last_update' => Data::max('last_update')
+            ];
+        }else{
+            $return['local'] = [
+                'connection' => 'down',
+                'last_update' => ''
+            ];
+        }
+        try {
+            $url = 'http://covid19dev.jatimprov.go.id/xweb/draxi';
+            $html =  HtmlDomParser::file_get_html($url);
+
+            $tabel = $html->find('tbody',0);
+            $lastUpdate = null;
+            foreach ($tabel->find('tr') as $key => $row) {
+                if( empty($row->find('td',4)->innertext) ) {
+                    $lastUpdate = $row->find('td',4)->innertext;
+                }else{
+                    if( $lastUpdate < $row->find('td',4)->innertext ){
+                        $lastUpdate = $row->find('td',4)->innertext;
+                    }
+                }
+            }
+            $return['jatim'] = [
+                'connection' => 'up',
+                'last_update' => $lastUpdate
+            ];
+            
+        } catch (\Throwable $e) {
+            $error = $e->getMessage();
+            if( $error == 'file_get_contents('. $url .'): failed to open stream: HTTP request failed!' ){
+                $return['jatim'] = [
+                    'connection' => 'down',
+                    'last_update' => ''
+                ];
+            }else{
+                return ['error' => $e->getMessage()];
+            }
+        }
+
+        return response($return);
+    }
     public function blitar()
     {
+        $hour = date('H');
+        
+        if($hour > 16) { 
+            $lastUpdateLocal = Data::max('last_update');
+            $dateTimestampLocal = strtotime($lastUpdateLocal);
+            $dateLocal = date('Y-m-d', $dateTimestampLocal);
+            $dataNow = date('Y-m-d');
+
+            if( $dateLocal < $dataNow ){
+                $this->getUpdate();
+            }
+        }
+
         $return = [];
-        $dataKotaBlitar = Data::where('city', 'KOTA BLITAR')->first();
-        $dataKabBlitar = Data::where('city', 'KAB. BLITAR')->first();
-        $dataJatimODP = Data::sum('odp');
-        $dataJatimPDP = Data::sum('pdp');
-        $dataJatimConfirm = Data::sum('confirm');
+        $dataKotaBlitar = Data::where('city', 'KOTA BLITAR')->orderBy('last_update', 'desc')->first();
+        $dataKabBlitar = Data::where('city', 'KAB. BLITAR')->orderBy('last_update', 'desc')->first();
+        $dataJatimODP = Data::where('updated_at', $dataKabBlitar->updated_at)->sum('odp');
+        $dataJatimPDP = Data::where('updated_at', $dataKabBlitar->updated_at)->sum('pdp');
+        $dataJatimConfirm = Data::where('updated_at', $dataKabBlitar->updated_at)->sum('confirm');
         $lastUpdate = Data::max('last_update');
         
         $return['last_update'] =  $lastUpdate;
@@ -87,5 +148,36 @@ class ExampleController extends Controller
         $return['jatim']['confirm'] = (int) $dataJatimConfirm;
 
         return response($return);
+    }
+
+    private function getUpdate()
+    {
+        DB::beginTransaction();
+        try {
+            $url = 'http://covid19dev.jatimprov.go.id/xweb/draxi';
+            
+            $html =  HtmlDomParser::file_get_html($url);
+        
+            $tabel = $html->find('tbody',0);
+        
+            $dataJadi = array();
+    
+            foreach ($tabel->find('tr') as $key => $row) {
+                $dataJadi[$key]['city'] = $row->find('td',0)->innertext;
+                $dataJadi[$key]['odp'] = $row->find('td',1)->innertext;
+                $dataJadi[$key]['pdp'] = $row->find('td',2)->innertext;
+                $dataJadi[$key]['confirm'] = $row->find('td',3)->innertext;
+                $dataJadi[$key]['last_update'] = $row->find('td',4)->innertext;
+    
+                $data = Data::create($dataJadi[$key]);
+            }
+
+            DB::commit();
+            return true;
+
+        } catch (\Exception $e) {
+            DB::rollback();
+            return ['error' => $e->getMessage()];
+        }
     }
 }
