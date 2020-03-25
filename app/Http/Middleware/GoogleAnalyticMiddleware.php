@@ -16,7 +16,7 @@ class GoogleAnalyticMiddleware
      */
     public function handle($request, Closure $next)
     {
-        $cid = ( ! empty($_SERVER['HTTP_ORIGIN']) ) ? $_SERVER['HTTP_ORIGIN'] : 'development';
+        $cid = ( ! empty($request->get('ip')) ) ? $request->get('ip') : $_SERVER['HTTP_ORIGIN'];
         $gamp = GAMP::setClientId( $cid );
         $gamp->setDocumentPath( $request->path() );
         $gamp->sendPageview();
