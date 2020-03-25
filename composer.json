@@ -6,6 +6,8 @@
     "type": "project",
     "require": {
         "php": "^7.2.5",
+        "irazasyed/larasupport": "^1.0",
+        "irazasyed/telegram-bot-sdk": "^2.0",
         "kub-at/php-simple-html-dom-parser": "^1.9",
         "laravel/lumen-framework": "^7.0"
     },

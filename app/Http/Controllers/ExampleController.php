@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Telegram\Bot\Laravel\Facades\Telegram;
 use KubAT\PhpSimple\HtmlDomParser;
 use App\Data;
 use DB;
@@ -20,54 +21,8 @@ class ExampleController extends Controller
 
     public function index()
     {
-        $url = 'http://covid19dev.jatimprov.go.id/xweb/draxi';
-        
-        $html =  HtmlDomParser::file_get_html($url);
-    
-        $tabel = $html->find('tbody',0);
-    
-        $dataJadi = array();
-        $return = [];
-        $jatim['odp'] = 0;
-        $jatim['pdp'] = 0;
-        $jatim['confirm'] = 0;
-        $blitar['odp'] = 0;
-        $blitar['pdp'] = 0;
-        $blitar['confirm'] = 0;
-    
-        foreach ($tabel->find('tr') as $key => $row) {
-            $dataJadi[$key]['city'] = $row->find('td',0)->innertext;
-            $dataJadi[$key]['odp'] = $row->find('td',1)->innertext;
-            $dataJadi[$key]['pdp'] = $row->find('td',2)->innertext;
-            $dataJadi[$key]['confirm'] = $row->find('td',3)->innertext;
-            $dataJadi[$key]['last_update'] = $row->find('td',4)->innertext;
-
-            $data = Data::create($dataJadi[$key]);
-    
-            // $jatim['odp'] =  $jatim['odp'] + $dataJadi[$key]['odp'];
-            // $jatim['pdp'] = $jatim['pdp'] + $dataJadi[$key]['pdp'];
-            // $jatim['confirm'] = $jatim['confirm'] + $dataJadi[$key]['confirm'];
-    
-            // if( $dataJadi[$key]['kota'] == 'KAB. BLITAR' || $dataJadi[$key]['kota'] == 'KOTA BLITAR'){
-            //     $blitar['odp'] =  $blitar['odp'] + $dataJadi[$key]['odp'];
-            //     $blitar['pdp'] = $blitar['pdp'] + $dataJadi[$key]['pdp'];
-            //     $blitar['confirm'] = $blitar['confirm'] + $dataJadi[$key]['confirm'];
-            // }
-            // if( empty($return['last_update']) ) {
-            //     $return['last_update'] = $dataJadi[$key]['date'];
-            // }else{
-            //     $lastUpdate = strtotime($return['last_update']); 
-            //     $othersDate = strtotime($dataJadi[$key]['date']); 
-            //     if( $lastUpdate < $othersDate ){
-            //         $return['last_update'] = $dataJadi[$key]['date'];
-            //     }
-            // }
-        }
-        // $return['blitar'] = $blitar; 
-        // $return['jatim'] = $jatim; 
-    
-    
-        return response($dataJadi);
+        $this->getUpdate();
+        return true;
     }
     public function status()
     {
@@ -159,8 +114,18 @@ class ExampleController extends Controller
             $html =  HtmlDomParser::file_get_html($url);
         
             $tabel = $html->find('tbody',0);
-        
             $dataJadi = array();
+            $jatim['odp'] = 0;
+            $jatim['pdp'] = 0;
+            $jatim['confirm'] = 0;
+            $blitar['odp'] = 0;
+            $blitar['pdp'] = 0;
+            $blitar['confirm'] = 0;
+            $lastUpdate = '';
+            
+            $messages = "*PEMBAHARUAN DATA COVID-19 JAWA TIMUR* \r\n";
+            
+            $messagesCity = '';
     
             foreach ($tabel->find('tr') as $key => $row) {
                 $dataJadi[$key]['city'] = $row->find('td',0)->innertext;
@@ -168,16 +133,75 @@ class ExampleController extends Controller
                 $dataJadi[$key]['pdp'] = $row->find('td',2)->innertext;
                 $dataJadi[$key]['confirm'] = $row->find('td',3)->innertext;
                 $dataJadi[$key]['last_update'] = $row->find('td',4)->innertext;
-    
+                
+                $messagesCity .= "*".$dataJadi[$key]['city']."* \r\n";
+                $messagesCity .= "+ *Positiv* : ". $dataJadi[$key]['confirm'] ." \r\n";
+                $messagesCity .= "+ *PDP* : ". $dataJadi[$key]['pdp'] ." \r\n";
+                $messagesCity .= "+ *ODP* : ". $dataJadi[$key]['odp'] ." \r\n";
+                $messagesCity .= "---------------------------------------\r\n";
+                
                 $data = Data::create($dataJadi[$key]);
+                $jatim['odp'] =  $jatim['odp'] + $dataJadi[$key]['odp'];
+                $jatim['pdp'] = $jatim['pdp'] + $dataJadi[$key]['pdp'];
+                $jatim['confirm'] = $jatim['confirm'] + $dataJadi[$key]['confirm'];
+                
+                
+                if( $dataJadi[$key]['city'] == 'KAB. BLITAR' || $dataJadi[$key]['city'] == 'KOTA BLITAR'){
+                    $blitar['odp'] =  $blitar['odp'] + $dataJadi[$key]['odp'];
+                    $blitar['pdp'] = $blitar['pdp'] + $dataJadi[$key]['pdp'];
+                    $blitar['confirm'] = $blitar['confirm'] + $dataJadi[$key]['confirm'];
+                }
+                if( empty($lastUpdate) ) {
+                    $lastUpdate = $dataJadi[$key]['last_update'];
+                }else{
+                    if( $lastUpdate < $dataJadi[$key]['last_update'] ){
+                        $lastUpdate = $dataJadi[$key]['last_update'];
+                    }
+                }
             }
+            $messages .= "_".$lastUpdate."_ \r\n \r\n";
+            $messages .= "\r\n";
+            $messages .= "*Jawa Timur* \r\n";
+            $messages .= "+ *Positiv* : ". $jatim['confirm'] ." \r\n";
+            $messages .= "+ *PDP* : ". $jatim['pdp'] ." \r\n";
+            $messages .= "+ *ODP* : ". $jatim['odp'] ." \r\n";
+            $messages .= "---------------------------------------\r\n";
+            $messages .= "*Blitar Raya* \r\n";
+            $messages .= "+ *Positiv* : ". $blitar['confirm'] ." \r\n";
+            $messages .= "+ *PDP* : ". $blitar['pdp'] ." \r\n";
+            $messages .= "+ *ODP* : ". $blitar['odp'] ." \r\n";
+            $messages .= "---------------------------------------\r\n";
+            $messages .= "\r\n";
+            $messages .= "\r\n";
+            $messages .= "*Data Kota Se-Jawa Timur* \r\n";
+            $messages .= "---------------------------------------\r\n";
+            $messages .= $messagesCity;
 
             DB::commit();
+            
+            $this->sendNotifTelegram($messages);
             return true;
 
         } catch (\Exception $e) {
             DB::rollback();
             return ['error' => $e->getMessage()];
         }
+    }
+    public function sendNotifTelegram($messages)
+    {
+
+        $response = Telegram::sendMessage([
+            'chat_id' => '34560670', 
+            'parse_mode' => 'markdown',
+            'text' => $messages
+        ]);
+          
+        // $messageId = $response->getMessageId();
+        return $response;
+    }
+    public function telegramWebhookUpdates()
+    {
+        $updates = Telegram::getWebhookUpdates();
+        return $update;
     }
 }

@@ -20,3 +20,9 @@ $router->get('/', function () use ($router) {
 $router->get('/blitar', 'ExampleController@blitar');
 $router->get('/status', 'ExampleController@status');
 $router->get('/tes', 'ExampleController@index');
+$router->get('/telegram', 'ExampleController@sendNotifTelegram');
+// $router->post('/<token>/webhook', function () {
+//     $updates = Telegram::getWebhookUpdates();
+
+//     return 'ok';
+// });
