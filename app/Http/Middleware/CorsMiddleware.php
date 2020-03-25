@@ -16,7 +16,8 @@ class CorsMiddleware
     public function handle($request, Closure $next)
     {
         $allowedDomains = [
-            'http://infoblitar.test',
+            'https://infoblitar.com',
+            'https://infoblitar.test',
             'http://covid19.test'
         ];
 
@@ -30,7 +31,7 @@ class CorsMiddleware
 
        //RULE HEADERSNYA HARUS KITA SET SECARA SPESIFIK SEPERTI INI 
         $headers = [
-            'Access-Control-Allow-Origin'      => '*',
+            'Access-Control-Allow-Origin'      => $domainApproved,
             'Access-Control-Allow-Methods'     => 'GET', //'POST, GET, OPTIONS, PUT, DELETE'
             'Access-Control-Allow-Credentials' => 'true',
             'Access-Control-Max-Age'           => '86400',
