@@ -73,7 +73,8 @@ $app->configure('app');
 */
 
 $app->middleware([
-    App\Http\Middleware\CorsMiddleware::class
+    App\Http\Middleware\CorsMiddleware::class,
+    App\Http\Middleware\GoogleAnalyticMiddleware::class,
 ]);
 
 // $app->routeMiddleware([
@@ -96,6 +97,7 @@ $app->middleware([
 // $app->register(App\Providers\EventServiceProvider::class);
 $app->register(Irazasyed\Larasupport\Providers\ArtisanServiceProvider::class);
 $app->register(Telegram\Bot\Laravel\TelegramServiceProvider::class);
+$app->register(Irazasyed\LaravelGAMP\LaravelGAMPServiceProvider::class);
 
 /*
 |--------------------------------------------------------------------------

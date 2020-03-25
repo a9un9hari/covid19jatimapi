@@ -189,9 +189,8 @@ class ExampleController extends Controller
             return ['error' => $e->getMessage()];
         }
     }
-    public function sendNotifTelegram($messages)
+    private function sendNotifTelegram($messages)
     {
-
         $response = Telegram::sendMessage([
             'chat_id' => '34560670', 
             'parse_mode' => 'markdown',
