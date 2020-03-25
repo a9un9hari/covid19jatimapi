@@ -21,7 +21,7 @@ class ExampleController extends Controller
 
     public function index()
     {
-        $this->getUpdate();
+        $this->getUpdate(true);
         return true;
     }
     public function status()
@@ -105,7 +105,7 @@ class ExampleController extends Controller
         return response($return);
     }
 
-    private function getUpdate()
+    private function getUpdate( $testing = false )
     {
         DB::beginTransaction();
         try {
@@ -139,8 +139,10 @@ class ExampleController extends Controller
                 $messagesCity .= "+ *PDP* : ". $dataJadi[$key]['pdp'] ." \r\n";
                 $messagesCity .= "+ *ODP* : ". $dataJadi[$key]['odp'] ." \r\n";
                 $messagesCity .= "---------------------------------------\r\n";
-                
-                $data = Data::create($dataJadi[$key]);
+
+                if ( !$testing ) {
+                    $data = Data::create($dataJadi[$key]);
+                }
                 $jatim['odp'] =  $jatim['odp'] + $dataJadi[$key]['odp'];
                 $jatim['pdp'] = $jatim['pdp'] + $dataJadi[$key]['pdp'];
                 $jatim['confirm'] = $jatim['confirm'] + $dataJadi[$key]['confirm'];
