@@ -17,13 +17,13 @@ class CorsMiddleware
     {
         $allowedDomains = [
             'https://infoblitar.com',
-            'https://infoblitar.test',
+            'http://infoblitar.test',
             'http://covid19.test'
         ];
 
         $curUrl = ( ! empty($_SERVER['HTTP_ORIGIN']) ) ? $_SERVER['HTTP_ORIGIN'] : '';
         
-        $domainApproved = '*';
+        $domainApproved = '';
 
         if (in_array($curUrl, $allowedDomains)) {
             $domainApproved = $curUrl;
