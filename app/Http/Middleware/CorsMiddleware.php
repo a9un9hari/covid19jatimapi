@@ -18,7 +18,8 @@ class CorsMiddleware
         $allowedDomains = [
             'https://infoblitar.com',
             'http://infoblitar.test',
-            'http://covid19.test'
+            'http://covid19.test',
+            'https://agunghari.com'
         ];
 
         $curUrl = ( ! empty($_SERVER['HTTP_ORIGIN']) ) ? $_SERVER['HTTP_ORIGIN'] : '';
