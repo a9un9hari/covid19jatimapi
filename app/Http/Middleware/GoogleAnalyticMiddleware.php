@@ -16,10 +16,25 @@ class GoogleAnalyticMiddleware
      */
     public function handle($request, Closure $next)
     {
-        $cid = ( ! empty($request->get('ip')) ) ? $request->get('ip') : $_SERVER['HTTP_ORIGIN'];
-        $gamp = GAMP::setClientId( $cid );
-        $gamp->setDocumentPath( $request->path() );
-        $gamp->sendPageview();
+        $origin = ( ! empty($_SERVER['HTTP_ORIGIN']) ) ? $_SERVER['HTTP_ORIGIN'] : url();
+        $ip = ( ! empty($request->get('ip')) ) ? $request->get('ip') : $origin;
+        $ua = ( ! empty($request->get('ua')) ) ? $request->get('ua') : $request->header('User-Agent');
+        $sr = ( ! empty($request->get('sr')) ) ? $request->get('sr') : '';
+        $vp = ( ! empty($request->get('vp')) ) ? $request->get('vp') : '';
+        $de = ( ! empty($request->get('de')) ) ? $request->get('de') : '';
+        $dt = ( ! empty($request->get('dt')) ) ? $request->get('dt') : '';
+
+        $gamp = GAMP::setClientId( $ip );
+        $gamp->setDocumentPath( $request->path() )
+            ->setDataSource($origin)
+            ->setIpOverride($ip)
+            ->setUserAgentOverride($ua)
+            ->setDocumentReferrer($origin)
+            ->setScreenResolution($sr)
+            ->setViewportSize($vp)
+            ->setDocumentEncoding($de)
+            ->setDocumentTitle($dt)
+            ->sendPageview();
 
         return $next($request);
     }
