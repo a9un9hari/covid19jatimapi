@@ -21,8 +21,10 @@ class ExampleController extends Controller
 
     public function index()
     {
-        $this->getUpdate(true);
-        return true;
+        $dataKotaBlitar = Data::where('city', 'KOTA BLITAR')->orderBy('last_update', 'desc')->first();
+        $data = Data::where('updated_at', $dataKotaBlitar->updated_at)->get();
+
+        return ($data);
     }
     public function status()
     {

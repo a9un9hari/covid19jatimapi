@@ -11,15 +11,15 @@
 |
 */
 
-$router->get('/', function () use ($router) {
+// $router->get('/', function () use ($router) {
     // $url['url'] = $_SERVER['HTTP_ORIGIN'];
     // return response($url);
-    return $router->app->version();
-});
+//     return $router->app->version();
+// });
 
+$router->get('/', 'ExampleController@index');
 $router->get('/blitar', 'ExampleController@blitar');
 $router->get('/status', 'ExampleController@status');
-$router->get('/tes', 'ExampleController@index');
 $router->get('/telegram', 'ExampleController@sendNotifTelegram');
 // $router->post('/<token>/webhook', function () {
 //     $updates = Telegram::getWebhookUpdates();
