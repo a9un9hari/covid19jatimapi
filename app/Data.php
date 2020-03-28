@@ -19,4 +19,8 @@ class Data extends Model
         'confirm',
         'last_update'
     ];
+    protected $casts = [
+        'created_at' => 'datetime:Y-m-d H:i:s',
+        'updated_at' => 'datetime:Y-m-d H:i:s',
+    ];
 }
