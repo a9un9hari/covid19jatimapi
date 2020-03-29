@@ -84,7 +84,7 @@ class ExampleController extends Controller
             $dataNow = date('Y-m-d');
 
             if( $dateLocal < $dataNow ){
-                $this->getUpdate();
+                // $this->getUpdate();
             }
         }
 
