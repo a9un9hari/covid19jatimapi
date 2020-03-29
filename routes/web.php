@@ -21,6 +21,9 @@ $router->get('/', 'ExampleController@index');
 $router->get('/blitar', 'ExampleController@blitar');
 $router->get('/status', 'ExampleController@status');
 $router->get('/telegram', 'ExampleController@sendNotifTelegram');
+
+
+$router->get('/map/blitar', 'ShowBlitarRayaController@showBlitarRaya');
 // $router->post('/<token>/webhook', function () {
 //     $updates = Telegram::getWebhookUpdates();
 
