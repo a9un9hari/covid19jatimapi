@@ -18,6 +18,35 @@ class ExampleController extends Controller
     {
         //
     }
+    private $jatimUrl = 'http://covid19dev.jatimprov.go.id/xweb/draxi';
+
+    private function getServerLastUpdate()
+    {
+
+        try {
+            $html =  HtmlDomParser::file_get_html($this->jatimUrl);
+
+            $tabel = $html->find('tbody',0);
+            $lastUpdate = null;
+            foreach ($tabel->find('tr') as $key => $row) {
+                if( empty($row->find('td',4)->innertext) ) {
+                    $lastUpdate = $row->find('td',4)->innertext;
+                }else{
+                    if( $lastUpdate < $row->find('td',4)->innertext ){
+                        $lastUpdate = $row->find('td',4)->innertext;
+                    }
+                }
+            }
+            return $lastUpdate;
+        } catch (\Throwable $e) {
+            $error = $e->getMessage();
+            if( $error == 'file_get_contents('. $this->jatimUrl .'): failed to open stream: HTTP request failed!' ){
+                return 'down';
+            }else{
+                return ['error' => $e->getMessage()];
+            }
+        }
+    }
 
     public function index()
     {
@@ -39,36 +68,17 @@ class ExampleController extends Controller
                 'last_update' => ''
             ];
         }
-        try {
-            $url = 'http://covid19dev.jatimprov.go.id/xweb/draxi';
-            $html =  HtmlDomParser::file_get_html($url);
 
-            $tabel = $html->find('tbody',0);
-            $lastUpdate = null;
-            foreach ($tabel->find('tr') as $key => $row) {
-                if( empty($row->find('td',4)->innertext) ) {
-                    $lastUpdate = $row->find('td',4)->innertext;
-                }else{
-                    if( $lastUpdate < $row->find('td',4)->innertext ){
-                        $lastUpdate = $row->find('td',4)->innertext;
-                    }
-                }
-            }
+        if ($this->getServerLastUpdate() == 'down') {
+            $return['jatim'] = [
+                'connection' => 'down',
+                'last_update' => ''
+            ];
+        }else{
             $return['jatim'] = [
                 'connection' => 'up',
-                'last_update' => $lastUpdate
+                'last_update' => $this->getServerLastUpdate()
             ];
-            
-        } catch (\Throwable $e) {
-            $error = $e->getMessage();
-            if( $error == 'file_get_contents('. $url .'): failed to open stream: HTTP request failed!' ){
-                $return['jatim'] = [
-                    'connection' => 'down',
-                    'last_update' => ''
-                ];
-            }else{
-                return ['error' => $e->getMessage()];
-            }
         }
 
         return response($return);
@@ -84,7 +94,10 @@ class ExampleController extends Controller
             $dataNow = date('Y-m-d');
 
             if( $dateLocal < $dataNow ){
-                $this->getUpdate();
+                $ServerLastUpdate = $this->getServerLastUpdate();
+                if( $ServerLastUpdate != 'down' && $lastUpdateLocal != $ServerLastUpdate){
+                    $this->getUpdate();
+                }
             }
         }
 
@@ -117,18 +130,13 @@ class ExampleController extends Controller
     {
         DB::beginTransaction();
         try {
-            $url = 'http://covid19dev.jatimprov.go.id/xweb/draxi';
-            
-            $html =  HtmlDomParser::file_get_html($url);
+            $html =  HtmlDomParser::file_get_html($this->jatimUrl);
         
             $tabel = $html->find('tbody',0);
             $dataJadi = array();
             $jatim['odp'] = 0;
             $jatim['pdp'] = 0;
             $jatim['confirm'] = 0;
-            $blitar['odp'] = 0;
-            $blitar['pdp'] = 0;
-            $blitar['confirm'] = 0;
             $lastUpdate = '';
             
             $messages = "*PEMBAHARUAN DATA COVID-19 JAWA TIMUR* \r\n";
@@ -155,12 +163,6 @@ class ExampleController extends Controller
                 $jatim['pdp'] = $jatim['pdp'] + $dataJadi[$key]['pdp'];
                 $jatim['confirm'] = $jatim['confirm'] + $dataJadi[$key]['confirm'];
                 
-                
-                if( $dataJadi[$key]['city'] == 'KAB. BLITAR' || $dataJadi[$key]['city'] == 'KOTA BLITAR'){
-                    $blitar['odp'] =  $blitar['odp'] + $dataJadi[$key]['odp'];
-                    $blitar['pdp'] = $blitar['pdp'] + $dataJadi[$key]['pdp'];
-                    $blitar['confirm'] = $blitar['confirm'] + $dataJadi[$key]['confirm'];
-                }
                 if( empty($lastUpdate) ) {
                     $lastUpdate = $dataJadi[$key]['last_update'];
                 }else{
@@ -175,11 +177,6 @@ class ExampleController extends Controller
             $messages .= "+ *Positiv* : ". $jatim['confirm'] ." \r\n";
             $messages .= "+ *PDP* : ". $jatim['pdp'] ." \r\n";
             $messages .= "+ *ODP* : ". $jatim['odp'] ." \r\n";
-            $messages .= "---------------------------------------\r\n";
-            $messages .= "*Blitar Raya* \r\n";
-            $messages .= "+ *Positiv* : ". $blitar['confirm'] ." \r\n";
-            $messages .= "+ *PDP* : ". $blitar['pdp'] ." \r\n";
-            $messages .= "+ *ODP* : ". $blitar['odp'] ." \r\n";
             $messages .= "---------------------------------------\r\n";
             $messages .= "\r\n";
             $messages .= "\r\n";
