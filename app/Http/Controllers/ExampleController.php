@@ -100,6 +100,12 @@ class ExampleController extends Controller
         $return['blitar']['odp'] =  $dataKotaBlitar->odp + $dataKabBlitar->odp;
         $return['blitar']['pdp'] = $dataKotaBlitar->pdp + $dataKabBlitar->pdp;
         $return['blitar']['confirm'] = $dataKotaBlitar->confirm + $dataKabBlitar->confirm;
+        $return['blitarkota']['odp'] =  $dataKotaBlitar->odp;
+        $return['blitarkota']['pdp'] = $dataKotaBlitar->pdp;
+        $return['blitarkota']['confirm'] = $dataKotaBlitar->confirm;
+        $return['blitarkab']['odp'] =  $dataKabBlitar->odp;
+        $return['blitarkab']['pdp'] = $dataKabBlitar->pdp;
+        $return['blitarkab']['confirm'] = $dataKabBlitar->confirm;
         $return['jatim']['odp'] =  (int) $dataJatimODP;
         $return['jatim']['pdp'] = (int) $dataJatimPDP;
         $return['jatim']['confirm'] = (int) $dataJatimConfirm;
