@@ -19,10 +19,10 @@ class ShowBlitarRayaController extends Controller
         //
     }
 
-    public function showBlitarRaya()
+    private function checkIfNeedUpdate()
     {
         $hour = date('H');
-        
+
         if($hour > 15) { 
             
             $lastUpdateLocal = VillageData::max('created_at');
@@ -34,9 +34,24 @@ class ShowBlitarRayaController extends Controller
                 $this->getUpdate();
             }
         }
+    }
+
+    public function showBlitarRaya()
+    {
+        $this->checkIfNeedUpdate();
+        
         $dataKotaBlitar = VillageData::where('city', 'KOTA BLITAR')->orderBy('created_at', 'desc')->limit(21)->get();
 
         return ($dataKotaBlitar);
+    }
+
+    public function showVillage($village)
+    {
+        $this->checkIfNeedUpdate();
+        
+        $villageData = VillageData::where('village', $village)->orderBy('created_at', 'desc')->first();
+
+        return ($villageData);
     }
     public function blitar()
     {
