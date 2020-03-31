@@ -23,7 +23,7 @@ class ShowBlitarRayaController extends Controller
     {
         $hour = date('H');
 
-        if($hour > 15) { 
+        if($hour > 3) { 
             
             $lastUpdateLocal = VillageData::max('created_at');
             $dateTimestampLocal = strtotime($lastUpdateLocal);
@@ -100,9 +100,10 @@ class ShowBlitarRayaController extends Controller
                 $dataJadi[$key]['city'] = 'KOTA BLITAR';
                 $dataJadi[$key]['village'] = $row->find('td',1)->innertext;
                 $dataJadi[$key]['odr'] = $row->find('td',2)->innertext;
-                $dataJadi[$key]['odp'] = $row->find('td',3)->innertext;
-                $dataJadi[$key]['pdp'] = $row->find('td',4)->innertext;
-                $dataJadi[$key]['confirm'] = $row->find('td',5)->innertext;
+                $dataJadi[$key]['otg'] = $row->find('td',3)->innertext;
+                $dataJadi[$key]['odp'] = $row->find('td',4)->innertext;
+                $dataJadi[$key]['pdp'] = $row->find('td',5)->innertext;
+                $dataJadi[$key]['confirm'] = $row->find('td',6)->innertext;
                 $dataJadi[$key]['last_update'] = $lastUpdate;
                 
                 // $messagesCity .= "*".$dataJadi[$key]['city']."* \r\n";
