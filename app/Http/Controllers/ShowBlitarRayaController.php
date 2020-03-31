@@ -94,6 +94,9 @@ class ShowBlitarRayaController extends Controller
             // $messagesCity = '';
     
             foreach ($tabel->find('tr') as $key => $row) {
+                if ($row->find('td',1)->innertext == 'TOTAL') {
+                    continue;
+                }
                 $dataJadi[$key]['city'] = 'KOTA BLITAR';
                 $dataJadi[$key]['village'] = $row->find('td',1)->innertext;
                 $dataJadi[$key]['odr'] = $row->find('td',2)->innertext;
