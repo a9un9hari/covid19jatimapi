@@ -40,7 +40,7 @@ class ShowBlitarRayaController extends Controller
     {
         $this->checkIfNeedUpdate();
         
-        $dataKotaBlitar = VillageData::where('city', 'KOTA BLITAR')->orderBy('created_at', 'desc')->limit(21)->get();
+        $dataKotaBlitar = VillageData::orderBy('created_at', 'desc')->limit(43)->get();
 
         return ($dataKotaBlitar);
     }
