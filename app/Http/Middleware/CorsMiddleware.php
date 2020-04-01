@@ -21,7 +21,8 @@ class CorsMiddleware
             'http://infoblitar.test',
             'http://covid19.test',
             'https://agunghari.com',
-            'http://corona.test'
+            'http://corona.test',
+            'https://covid19jatim.agunghari.com',
         ];
 
         $curUrl = ( ! empty($_SERVER['HTTP_ORIGIN']) ) ? $_SERVER['HTTP_ORIGIN'] : '';
