@@ -23,8 +23,7 @@ class ShowBlitarRayaController extends Controller
     {
         $hour = date('H');
 
-        if($hour > 15) { 
-            
+        if($hour > 14) { 
             $lastUpdateLocal = VillageData::max('created_at');
             $dateTimestampLocal = strtotime($lastUpdateLocal);
             $dateLocal = date('Y-m-d', $dateTimestampLocal);
