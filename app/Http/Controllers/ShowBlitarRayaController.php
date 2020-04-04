@@ -9,6 +9,7 @@ use DB;
 
 class ShowBlitarRayaController extends Controller
 {
+    private $blitarUrl = 'http://petasebaran.covid19.blitarkota.go.id';
     /**
      * Create a new controller instance.
      *
@@ -19,18 +20,33 @@ class ShowBlitarRayaController extends Controller
         //
     }
 
+    private function getServerLastUpdate()
+    {
+        $html =  HtmlDomParser::file_get_html($this->blitarUrl);
+    
+        $tabel = $html->find('tbody',0);
+        $lastUpdate = $html->find('center small i span',0)->innertext;
+
+        return $lastUpdate;
+    }
+
     private function checkIfNeedUpdate()
     {
         $hour = date('H');
 
         if($hour > 14) { 
+            $blitarLastUpdateLocal = VillageData::where('city', 'KOTA BLITAR')->orderBy('id', 'desc')->first();
+
             $lastUpdateLocal = VillageData::max('created_at');
             $dateTimestampLocal = strtotime($lastUpdateLocal);
             $dateLocal = date('Y-m-d', $dateTimestampLocal);
             $dataNow = date('Y-m-d');
 
             if( $dateLocal < $dataNow ){
-                // $this->getUpdate();
+                $ServerLastUpdate = $this->getServerLastUpdate();
+                if( $blitarLastUpdateLocal->last_update != $ServerLastUpdate){
+                    $this->getUpdate();
+                }
             }
         }
     }
@@ -78,9 +94,7 @@ class ShowBlitarRayaController extends Controller
     {
         DB::beginTransaction();
         try {
-            $url = 'http://petasebaran.covid19.blitarkota.go.id';
-            
-            $html =  HtmlDomParser::file_get_html($url);
+            $html =  HtmlDomParser::file_get_html($this->blitarUrl);
         
             $tabel = $html->find('tbody',0);
             $dataJadi = array();
