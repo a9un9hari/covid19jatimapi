@@ -36,8 +36,15 @@ class JatimController extends Controller
             $return  = $this->getStringBetween($html, 'var datakabupaten=', 'var hariini=', 2 );
 
             $arr = json_decode($return);
+            $lastUpdate = '';
+            foreach ($arr as $key => $value) {
+                if( $lastUpdate < $value->updated_at ){
+                    $lastUpdate = $value->updated_at;
+                }
+            }
 
-            return $arr[1]->updated_at;
+
+            return $lastUpdate;
         } catch (\Throwable $e) {
             $error = $e->getMessage();
             if( $error == 'file_get_contents('. $this->jatimUrl .'): failed to open stream: HTTP request failed!' ){
@@ -48,19 +55,12 @@ class JatimController extends Controller
         }
     }
 
-    public function index()
-    {
-        $dataKotaBlitar = Data::where('city', 'KOTA BLITAR')->orderBy('last_update', 'desc')->first();
-        $data = Data::where('updated_at', $dataKotaBlitar->updated_at)->get();
-
-        return ($data);
-    }
     public function status()
     {
         if ( ! empty(DB::connection()->getDatabaseName()) ) {
             $return['local'] = [
                 'connection' => 'up',
-                'last_update' => Data::max('last_update')
+                'last_update' => DataJatim::max('updated_at')
             ];
         }else{
             $return['local'] = [
