@@ -13,8 +13,9 @@ class DataJatim extends Migration
      */
     public function up()
     {
-        Schema::create('dataJatim', function (Blueprint $table) {
+        Schema::create('data_jatims', function (Blueprint $table) {
             $table->id();
+            $table->integer('id_old');
             $table->string('kode',10);
             $table->string('kabko',30);
             $table->string('lat',25);
@@ -67,6 +68,6 @@ class DataJatim extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('dataJatim');
+        Schema::dropIfExists('data_jatims');
     }
 }
