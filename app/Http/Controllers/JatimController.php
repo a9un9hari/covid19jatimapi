@@ -67,7 +67,7 @@ class JatimController extends Controller
             if( $dateLocal < $dataNow ){
                 $ServerLastUpdate = $this->getServerLastUpdate();
                 if( $ServerLastUpdate != 'down' && $lastUpdateLocal != $ServerLastUpdate){
-                    $this->getUpdate();
+                    $this->getUpdate(true);
                 }
             }
         }
@@ -153,12 +153,12 @@ class JatimController extends Controller
 
                     // Messages by city
                     $messagesCity .= "*".$value['kabko']."* \r\n";
-                    $messagesCity .= "+ *Positiv* : ". $value['confirm'] ." \r\n";
-                    $messagesCity .= "+ *PDP* : ". $value['pdp'] ." \r\n";
-                    $messagesCity .= "+ *ODP* : ". $value['odp'] ." \r\n";
-                    $messagesCity .= "+ *OTG* : ". $value['otg'] ." \r\n";
-                    $messagesCity .= "+ *ODR* : ". $value['odr'] ." \r\n";
-                    $messagesCity .= "---------------------------------------\r\n";
+                    $messagesCity .= "+ *Positiv* : ". $value['confirm'] ." |   ";
+                    $messagesCity .= "+ *PDP* : ". $value['pdp'] ." |   ";
+                    $messagesCity .= "+ *ODP* : ". $value['odp'] ." |   ";
+                    $messagesCity .= "+ *OTG* : ". $value['otg'] ." |   ";
+                    $messagesCity .= "+ *ODR* : ". $value['odr'] ." \r\n\r\n";
+                    // $messagesCity .= "---------------------------------------\r\n";
 
                     // Add to jatim data
                     $jatim['odr'] =  $jatim['odr'] + $value['odp'];
@@ -192,8 +192,11 @@ class JatimController extends Controller
             $messages .= $messagesCity;
 
             DB::commit();
-            
-            $this->sendNotifTelegram($messages);
+
+            // dd($messages);
+            // die();
+            $telegram = $this->sendNotifTelegram($messages);
+
             return true;
         
         } catch (\Exception $e) {
