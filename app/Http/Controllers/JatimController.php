@@ -3,11 +3,10 @@
 namespace App\Http\Controllers;
 
 use Telegram\Bot\Laravel\Facades\Telegram;
-use KubAT\PhpSimple\HtmlDomParser;
-use App\Data;
+use App\DataJatim;
 use DB;
 
-class ExampleController extends Controller
+class JatimController extends Controller
 {
     /**
      * Create a new controller instance.
@@ -22,8 +21,11 @@ class ExampleController extends Controller
     
     private function getServerLastUpdate()
     {
-
         try {
+
+            $html = file_get_contents($this->jatimUrl);
+            $return  = $this->getStringBetween($html, 'var datakabupaten=', 'var hariini=', 2 );
+            
             $html =  HtmlDomParser::file_get_html($this->jatimUrl);
 
             $tabel = $html->find('tbody',0);
@@ -46,6 +48,16 @@ class ExampleController extends Controller
                 return ['error' => $e->getMessage()];
             }
         }
+    }
+    
+    private function getStringBetween($text, $before, $after, $ajust = 0 )
+    {
+        $text = ' '.$text;
+        $ini = strpos($text, $before);
+        if( $ini == 0 ) return '';
+        $ini += strlen($before);
+        $lenght = strpos($text, $after, $ini) - $ini - $ajust;
+        return substr($text, $ini, $lenght);
     }
 
     public function index()
@@ -212,19 +224,23 @@ class ExampleController extends Controller
     }
     public function tester()
     {
+        dd($this->getServerLastUpdate());
         $html = file_get_contents($this->jatimUrl);
         $return  = $this->getStringBetween($html, 'var datakabupaten=', 'var hariini=', 2 );
 
-        return response($return)->header('Content-Type', 'application/json');
-    }
-    
-    private function getStringBetween($text, $before, $after, $ajust = 0 )
-    {
-        $text = ' '.$text;
-        $ini = strpos($text, $before);
-        if( $ini == 0 ) return '';
-        $ini += strlen($before);
-        $lenght = strpos($text, $after, $ini) - $ini - $ajust;
-        return substr($text, $ini, $lenght);
+        $arr = json_decode($return, true);
+        // dd($return);
+        // return response($arr);
+        // echo"<pre>";
+        foreach ($arr as $key => $value) {
+            $isExist = DataJatim::where('id_old', $value['id'])->first();
+            if ( ! $isExist ) {
+                $value['id_old'] = $value['id'];
+                $data = DataJatim::create($value);
+            }
+        }
+
+        die();
+        return response($arr);
     }
 }
