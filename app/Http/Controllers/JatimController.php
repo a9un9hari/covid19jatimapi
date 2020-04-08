@@ -18,6 +18,7 @@ class JatimController extends Controller
         //
     }
     private $jatimUrl = 'http://covid19dev.jatimprov.go.id/xweb/draxi';
+    private $dailyCheckUpdate = 10; // 1-24 hour
     
     private function getStringBetween($text, $before, $after, $ajust = 0 )
     {
@@ -43,7 +44,6 @@ class JatimController extends Controller
                 }
             }
 
-
             return $lastUpdate;
         } catch (\Throwable $e) {
             $error = $e->getMessage();
@@ -51,6 +51,24 @@ class JatimController extends Controller
                 return 'down';
             }else{
                 return ['error' => $e->getMessage()];
+            }
+        }
+    }
+    private function checkIfNeedUpdate()
+    {
+        $hour = date('H');
+        
+        if($hour > $this->dailyCheckUpdate) { 
+            $lastUpdateLocal = DataJatim::max('updated_at');
+            $dateTimestampLocal = strtotime($lastUpdateLocal);
+            $dateLocal = date('Y-m-d', $dateTimestampLocal);
+            $dataNow = date('Y-m-d');
+
+            if( $dateLocal < $dataNow ){
+                $ServerLastUpdate = $this->getServerLastUpdate();
+                if( $ServerLastUpdate != 'down' && $lastUpdateLocal != $ServerLastUpdate){
+                    $this->getUpdate();
+                }
             }
         }
     }
@@ -83,23 +101,11 @@ class JatimController extends Controller
 
         return response($return);
     }
+
     public function blitar()
     {
-        $hour = date('H');
-        
-        if($hour > 16) { 
-            $lastUpdateLocal = Data::max('last_update');
-            $dateTimestampLocal = strtotime($lastUpdateLocal);
-            $dateLocal = date('Y-m-d', $dateTimestampLocal);
-            $dataNow = date('Y-m-d');
-
-            if( $dateLocal < $dataNow ){
-                $ServerLastUpdate = $this->getServerLastUpdate();
-                if( $ServerLastUpdate != 'down' && $lastUpdateLocal != $ServerLastUpdate){
-                    $this->getUpdate();
-                }
-            }
-        }
+        $this->checkIfNeedUpdate();
+        die();
 
         $return = [];
         $dataKotaBlitar = Data::where('city', 'KOTA BLITAR')->orderBy('last_update', 'desc')->first();
@@ -130,53 +136,58 @@ class JatimController extends Controller
     {
         DB::beginTransaction();
         try {
-            $html =  HtmlDomParser::file_get_html($this->jatimUrl);
-        
-            $tabel = $html->find('tbody',0);
-            $dataJadi = array();
+            $html = file_get_contents($this->jatimUrl);
+            $return  = $this->getStringBetween($html, 'var datakabupaten=', 'var hariini=', 2 );
+            
+            $arr = json_decode($return, true);
+            
+            $jatim['odr'] = 0;
+            $jatim['otg'] = 0;
             $jatim['odp'] = 0;
             $jatim['pdp'] = 0;
             $jatim['confirm'] = 0;
-            $lastUpdate = '';
             
             $messages = "*PEMBAHARUAN DATA COVID-19 JAWA TIMUR* \r\n";
-            
             $messagesCity = '';
-    
-            foreach ($tabel->find('tr') as $key => $row) {
-                $dataJadi[$key]['city'] = $row->find('td',0)->innertext;
-                $dataJadi[$key]['odp'] = $row->find('td',1)->innertext;
-                $dataJadi[$key]['pdp'] = $row->find('td',2)->innertext;
-                $dataJadi[$key]['confirm'] = $row->find('td',3)->innertext;
-                $dataJadi[$key]['last_update'] = $row->find('td',4)->innertext;
-                
-                $messagesCity .= "*".$dataJadi[$key]['city']."* \r\n";
-                $messagesCity .= "+ *Positiv* : ". $dataJadi[$key]['confirm'] ." \r\n";
-                $messagesCity .= "+ *PDP* : ". $dataJadi[$key]['pdp'] ." \r\n";
-                $messagesCity .= "+ *ODP* : ". $dataJadi[$key]['odp'] ." \r\n";
-                $messagesCity .= "---------------------------------------\r\n";
+            
+            foreach ($arr as $key => $value) {
+                // Check data on local server first
+                $isExist = DataJatim::where('id_old', $value['id'])->first();
+                if ( ! $isExist ) {
 
-                if ( !$testing ) {
-                    $data = Data::create($dataJadi[$key]);
-                }
-                $jatim['odp'] =  $jatim['odp'] + $dataJadi[$key]['odp'];
-                $jatim['pdp'] = $jatim['pdp'] + $dataJadi[$key]['pdp'];
-                $jatim['confirm'] = $jatim['confirm'] + $dataJadi[$key]['confirm'];
-                
-                if( empty($lastUpdate) ) {
-                    $lastUpdate = $dataJadi[$key]['last_update'];
-                }else{
-                    if( $lastUpdate < $dataJadi[$key]['last_update'] ){
-                        $lastUpdate = $dataJadi[$key]['last_update'];
+                    // Messages by city
+                    $messagesCity .= "*".$value['kabko']."* \r\n";
+                    $messagesCity .= "+ *Positiv* : ". $value['confirm'] ." \r\n";
+                    $messagesCity .= "+ *PDP* : ". $value['pdp'] ." \r\n";
+                    $messagesCity .= "+ *ODP* : ". $value['odp'] ." \r\n";
+                    $messagesCity .= "+ *OTG* : ". $value['otg'] ." \r\n";
+                    $messagesCity .= "+ *ODR* : ". $value['odr'] ." \r\n";
+                    $messagesCity .= "---------------------------------------\r\n";
+
+                    // Add to jatim data
+                    $jatim['odr'] =  $jatim['odr'] + $value['odp'];
+                    $jatim['otg'] =  $jatim['otg'] + $value['odp'];
+                    $jatim['odp'] =  $jatim['odp'] + $value['odp'];
+                    $jatim['pdp'] = $jatim['pdp'] + $value['pdp'];
+                    $jatim['confirm'] = $jatim['confirm'] + $value['confirm'];
+
+                    // Insert data
+                    if ( ! $testing ) { // if not testing insert data
+                        $value['id_old'] = $value['id'];
+                        $data = DataJatim::create($value);
                     }
+
                 }
             }
-            $messages .= "_".$lastUpdate."_ \r\n \r\n";
+
+            $messages .= "_".$this->getServerLastUpdate()."_ \r\n \r\n";
             $messages .= "\r\n";
             $messages .= "*Jawa Timur* \r\n";
             $messages .= "+ *Positiv* : ". $jatim['confirm'] ." \r\n";
             $messages .= "+ *PDP* : ". $jatim['pdp'] ." \r\n";
             $messages .= "+ *ODP* : ". $jatim['odp'] ." \r\n";
+            $messages .= "+ *OTG* : ". $jatim['otg'] ." \r\n";
+            $messages .= "+ *ODR* : ". $jatim['odr'] ." \r\n";
             $messages .= "---------------------------------------\r\n";
             $messages .= "\r\n";
             $messages .= "\r\n";
@@ -188,7 +199,7 @@ class JatimController extends Controller
             
             $this->sendNotifTelegram($messages);
             return true;
-
+        
         } catch (\Exception $e) {
             DB::rollback();
             return ['error' => $e->getMessage()];
@@ -202,7 +213,6 @@ class JatimController extends Controller
             'text' => $messages
         ]);
           
-        // $messageId = $response->getMessageId();
         return $response;
     }
     public function telegramWebhookUpdates()
@@ -212,7 +222,6 @@ class JatimController extends Controller
     }
     public function tester()
     {
-        dd($this->getServerLastUpdate());
         $html = file_get_contents($this->jatimUrl);
         $return  = $this->getStringBetween($html, 'var datakabupaten=', 'var hariini=', 2 );
 
