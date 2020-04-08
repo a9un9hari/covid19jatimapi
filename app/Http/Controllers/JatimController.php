@@ -216,24 +216,4 @@ class JatimController extends Controller
         $updates = Telegram::getWebhookUpdates();
         return $update;
     }
-    public function tester()
-    {
-        $html = file_get_contents($this->jatimUrl);
-        $return  = $this->getStringBetween($html, 'var datakabupaten=', 'var hariini=', 2 );
-
-        $arr = json_decode($return, true);
-        // dd($return);
-        // return response($arr);
-        // echo"<pre>";
-        foreach ($arr as $key => $value) {
-            $isExist = DataJatim::where('id_old', $value['id'])->first();
-            if ( ! $isExist ) {
-                $value['id_old'] = $value['id'];
-                $data = DataJatim::create($value);
-            }
-        }
-
-        die();
-        return response($arr);
-    }
 }

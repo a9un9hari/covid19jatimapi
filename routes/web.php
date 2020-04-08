@@ -18,10 +18,11 @@
 // });
 
 $router->get('/', 'ExampleController@index');
-$router->get('/blitar', 'ExampleController@blitar');
-$router->get('/status', 'ExampleController@status');
 $router->get('/telegram', 'ExampleController@sendNotifTelegram');
 
+// Jatim
+$router->get('/status', 'JatimController@status');
+$router->get('/blitar', 'JatimController@blitar');
 
 $router->get('/map/blitar', 'ShowBlitarRayaController@showBlitarRaya');
 $router->get('/map/blitar/{village}', 'ShowBlitarRayaController@showVillage');
