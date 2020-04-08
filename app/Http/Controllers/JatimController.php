@@ -19,37 +19,6 @@ class JatimController extends Controller
     }
     private $jatimUrl = 'http://covid19dev.jatimprov.go.id/xweb/draxi';
     
-    private function getServerLastUpdate()
-    {
-        try {
-
-            $html = file_get_contents($this->jatimUrl);
-            $return  = $this->getStringBetween($html, 'var datakabupaten=', 'var hariini=', 2 );
-            
-            $html =  HtmlDomParser::file_get_html($this->jatimUrl);
-
-            $tabel = $html->find('tbody',0);
-            $lastUpdate = null;
-            foreach ($tabel->find('tr') as $key => $row) {
-                if( empty($row->find('td',4)->innertext) ) {
-                    $lastUpdate = $row->find('td',4)->innertext;
-                }else{
-                    if( $lastUpdate < $row->find('td',4)->innertext ){
-                        $lastUpdate = $row->find('td',4)->innertext;
-                    }
-                }
-            }
-            return $lastUpdate;
-        } catch (\Throwable $e) {
-            $error = $e->getMessage();
-            if( $error == 'file_get_contents('. $this->jatimUrl .'): failed to open stream: HTTP request failed!' ){
-                return 'down';
-            }else{
-                return ['error' => $e->getMessage()];
-            }
-        }
-    }
-    
     private function getStringBetween($text, $before, $after, $ajust = 0 )
     {
         $text = ' '.$text;
@@ -58,6 +27,25 @@ class JatimController extends Controller
         $ini += strlen($before);
         $lenght = strpos($text, $after, $ini) - $ini - $ajust;
         return substr($text, $ini, $lenght);
+    }
+    
+    private function getServerLastUpdate()
+    {
+        try {
+            $html = file_get_contents($this->jatimUrl);
+            $return  = $this->getStringBetween($html, 'var datakabupaten=', 'var hariini=', 2 );
+
+            $arr = json_decode($return);
+
+            return $arr[1]->updated_at;
+        } catch (\Throwable $e) {
+            $error = $e->getMessage();
+            if( $error == 'file_get_contents('. $this->jatimUrl .'): failed to open stream: HTTP request failed!' ){
+                return 'down';
+            }else{
+                return ['error' => $e->getMessage()];
+            }
+        }
     }
 
     public function index()
