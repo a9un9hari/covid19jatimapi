@@ -18,7 +18,7 @@ class JatimController extends Controller
         //
     }
     private $jatimUrl = 'http://covid19dev.jatimprov.go.id/xweb/draxi';
-    private $dailyCheckUpdate = 10; // 1-24 hour
+    private $dailyCheckUpdate = 16; // 1-24 hour
     
     private function getStringBetween($text, $before, $after, $ajust = 0 )
     {
