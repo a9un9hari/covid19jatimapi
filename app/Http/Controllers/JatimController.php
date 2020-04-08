@@ -105,26 +105,22 @@ class JatimController extends Controller
     public function blitar()
     {
         $this->checkIfNeedUpdate();
-        die();
 
         $return = [];
-        $dataKotaBlitar = Data::where('city', 'KOTA BLITAR')->orderBy('last_update', 'desc')->first();
-        $dataKabBlitar = Data::where('city', 'KAB. BLITAR')->orderBy('last_update', 'desc')->first();
-        $dataJatimODP = Data::where('updated_at', $dataKabBlitar->updated_at)->sum('odp');
-        $dataJatimPDP = Data::where('updated_at', $dataKabBlitar->updated_at)->sum('pdp');
-        $dataJatimConfirm = Data::where('updated_at', $dataKabBlitar->updated_at)->sum('confirm');
-        $lastUpdate = Data::max('last_update');
+        $dataKotaBlitar = DataJatim::where('id_kabko', 33)->orderBy('updated_at', 'desc')->first();
+        $dataKabBlitar = DataJatim::where('id_kabko', 7)->orderBy('updated_at', 'desc')->first();
+        $dataJatimODR = DataJatim::latest()->limit(38)->get()->sum('odr');
+        $dataJatimOTG = DataJatim::latest()->limit(38)->get()->sum('otg');
+        $dataJatimODP = DataJatim::latest()->limit(38)->get()->sum('odp');
+        $dataJatimPDP = DataJatim::latest()->limit(38)->get()->sum('pdp');
+        $dataJatimConfirm = DataJatim::latest()->limit(38)->get()->sum('confirm');
+        $lastUpdate = DataJatim::max('updated_at');
         
         $return['last_update'] =  $lastUpdate;
-        $return['blitar']['odp'] =  $dataKotaBlitar->odp + $dataKabBlitar->odp;
-        $return['blitar']['pdp'] = $dataKotaBlitar->pdp + $dataKabBlitar->pdp;
-        $return['blitar']['confirm'] = $dataKotaBlitar->confirm + $dataKabBlitar->confirm;
-        $return['blitarkota']['odp'] =  $dataKotaBlitar->odp;
-        $return['blitarkota']['pdp'] = $dataKotaBlitar->pdp;
-        $return['blitarkota']['confirm'] = $dataKotaBlitar->confirm;
-        $return['blitarkab']['odp'] =  $dataKabBlitar->odp;
-        $return['blitarkab']['pdp'] = $dataKabBlitar->pdp;
-        $return['blitarkab']['confirm'] = $dataKabBlitar->confirm;
+        $return['blitarkota'] =  $dataKotaBlitar;
+        $return['blitarkab'] =  $dataKabBlitar;
+        $return['jatim']['odr'] =  (int) $dataJatimODR;
+        $return['jatim']['otg'] =  (int) $dataJatimOTG;
         $return['jatim']['odp'] =  (int) $dataJatimODP;
         $return['jatim']['pdp'] = (int) $dataJatimPDP;
         $return['jatim']['confirm'] = (int) $dataJatimConfirm;
