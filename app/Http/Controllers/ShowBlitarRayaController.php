@@ -117,6 +117,8 @@ class ShowBlitarRayaController extends Controller
                 $dataJadi[$key]['odp'] = $row->find('td',4)->innertext;
                 $dataJadi[$key]['pdp'] = $row->find('td',5)->innertext;
                 $dataJadi[$key]['confirm'] = $row->find('td',6)->innertext;
+                $dataJadi[$key]['confirm_recover'] = $row->find('td',7)->innertext;
+                $dataJadi[$key]['confirm_die'] = $row->find('td',8)->innertext;
                 $dataJadi[$key]['last_update'] = $lastUpdate;
                 
                 // $messagesCity .= "*".$dataJadi[$key]['city']."* \r\n";
