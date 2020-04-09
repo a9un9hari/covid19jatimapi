@@ -10,7 +10,7 @@ class JatimController extends Controller
 {
     private $jatimUrl = 'http://covid19dev.jatimprov.go.id/xweb/draxi';
     private $dailyCheckUpdate = 16; // 1-24 hour
-    
+
     /**
      * Create a new controller instance.
      *
@@ -68,7 +68,7 @@ class JatimController extends Controller
             if( $dateLocal < $dataNow ){
                 $ServerLastUpdate = $this->getServerLastUpdate();
                 if( $ServerLastUpdate != 'down' && $lastUpdateLocal != $ServerLastUpdate){
-                    $this->getUpdate(true);
+                    $this->getUpdate();
                 }
             }
         }
