@@ -8,6 +8,9 @@ use DB;
 
 class JatimController extends Controller
 {
+    private $jatimUrl = 'http://covid19dev.jatimprov.go.id/xweb/draxi';
+    private $dailyCheckUpdate = 16; // 1-24 hour
+    
     /**
      * Create a new controller instance.
      *
@@ -17,8 +20,6 @@ class JatimController extends Controller
     {
         //
     }
-    private $jatimUrl = 'http://covid19dev.jatimprov.go.id/xweb/draxi';
-    private $dailyCheckUpdate = 16; // 1-24 hour
     
     private function getStringBetween($text, $before, $after, $ajust = 0 )
     {
@@ -158,7 +159,6 @@ class JatimController extends Controller
                     $messagesCity .= "+ *ODP* : ". $value['odp'] ." |   ";
                     $messagesCity .= "+ *OTG* : ". $value['otg'] ." |   ";
                     $messagesCity .= "+ *ODR* : ". $value['odr'] ." \r\n\r\n";
-                    // $messagesCity .= "---------------------------------------\r\n";
 
                     // Add to jatim data
                     $jatim['odr'] =  $jatim['odr'] + $value['odp'];
@@ -192,9 +192,6 @@ class JatimController extends Controller
             $messages .= $messagesCity;
 
             DB::commit();
-
-            // dd($messages);
-            // die();
             $telegram = $this->sendNotifTelegram($messages);
 
             return true;
