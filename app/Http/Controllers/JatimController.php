@@ -161,8 +161,8 @@ class JatimController extends Controller
                     $messagesCity .= "+ *ODR* : ". $value['odr'] ." \r\n\r\n";
 
                     // Add to jatim data
-                    $jatim['odr'] =  $jatim['odr'] + $value['odp'];
-                    $jatim['otg'] =  $jatim['otg'] + $value['odp'];
+                    $jatim['odr'] =  $jatim['odr'] + $value['odr'];
+                    $jatim['otg'] =  $jatim['otg'] + $value['otg'];
                     $jatim['odp'] =  $jatim['odp'] + $value['odp'];
                     $jatim['pdp'] = $jatim['pdp'] + $value['pdp'];
                     $jatim['confirm'] = $jatim['confirm'] + $value['confirm'];
