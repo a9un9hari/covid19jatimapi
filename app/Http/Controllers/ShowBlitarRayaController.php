@@ -137,11 +137,11 @@ class ShowBlitarRayaController extends Controller
                 $messagesBlitar .= "---------------------------------------\r\n";
 
                 // Add to Blitar data
-                $blitar['odr'] =  $blitar['odr'] + $dataJadi[$key]['odr'];
-                $blitar['otg'] =  $blitar['otg'] + $dataJadi[$key]['otg'];
-                $blitar['odp'] =  $blitar['odp'] + $dataJadi[$key]['odp'];
-                $blitar['pdp'] = $blitar['pdp'] + $dataJadi[$key]['pdp'];
-                $blitar['confirm'] = $blitar['confirm'] + $dataJadi[$key]['confirm'];
+                $blitar['odr'] =  $blitar['odr'] + (int) $dataJadi[$key]['odr'];
+                $blitar['otg'] =  $blitar['otg'] + (int) $dataJadi[$key]['otg'];
+                $blitar['odp'] =  $blitar['odp'] + (int) $dataJadi[$key]['odp'];
+                $blitar['pdp'] = $blitar['pdp'] + (int) $dataJadi[$key]['pdp'];
+                $blitar['confirm'] = $blitar['confirm'] + (int) $dataJadi[$key]['confirm'];
 
                     // print_r($dataJadi);
                 if ( ! $testing ) {
@@ -171,6 +171,7 @@ class ShowBlitarRayaController extends Controller
 
         } catch (\Exception $e) {
             DB::rollback();
+            dd($e);
             return ['error' => $e->getMessage()];
         }
     }
