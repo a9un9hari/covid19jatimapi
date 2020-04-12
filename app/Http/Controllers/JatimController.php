@@ -64,7 +64,7 @@ class JatimController extends Controller
             $dateTimestampLocal = strtotime($lastUpdateLocal);
             $dateLocal = date('Y-m-d', $dateTimestampLocal);
             $dataNow = date('Y-m-d');
-
+            
             if( $dateLocal < $dataNow ){
                 $ServerLastUpdate = $this->getServerLastUpdate();
                 if( $ServerLastUpdate != 'down' && $lastUpdateLocal != $ServerLastUpdate){
@@ -135,7 +135,6 @@ class JatimController extends Controller
         try {
             $html = file_get_contents($this->jatimUrl);
             $return  = $this->getStringBetween($html, 'var datakabupaten=', 'var hariini=', 2 );
-            
             $arr = json_decode($return, true);
             
             $jatim['odr'] = 0;
@@ -161,21 +160,21 @@ class JatimController extends Controller
                     $messagesCity .= "+ *ODR* : ". $value['odr'] ." \r\n\r\n";
 
                     // Add to jatim data
-                    $jatim['odr'] =  $jatim['odr'] + $value['odr'];
-                    $jatim['otg'] =  $jatim['otg'] + $value['otg'];
-                    $jatim['odp'] =  $jatim['odp'] + $value['odp'];
-                    $jatim['pdp'] = $jatim['pdp'] + $value['pdp'];
+                    $jatim['odr'] =  $jatim['odr'] + (int) $value['odr'];
+                    $jatim['otg'] =  $jatim['otg'] + (int) $value['otg'];
+                    $jatim['odp'] =  $jatim['odp'] + (int) $value['odp'];
+                    $jatim['pdp'] = $jatim['pdp'] + (int) $value['pdp'];
                     $jatim['confirm'] = $jatim['confirm'] + $value['confirm'];
 
                     // Insert data
                     if ( ! $testing ) { // if not testing insert data
+                        $value['odr'] = (int) $value['odr'];
                         $value['id_old'] = $value['id'];
                         $data = DataJatim::create($value);
                     }
 
                 }
             }
-
             $messages .= "_".$this->getServerLastUpdate()."_ \r\n \r\n";
             $messages .= "\r\n";
             $messages .= "*Jawa Timur* \r\n";
@@ -190,7 +189,6 @@ class JatimController extends Controller
             $messages .= "*Data Kota Se-Jawa Timur* \r\n";
             $messages .= "---------------------------------------\r\n";
             $messages .= $messagesCity;
-
             DB::commit();
             $telegram = $this->sendNotifTelegram($messages);
 
@@ -198,6 +196,7 @@ class JatimController extends Controller
         
         } catch (\Exception $e) {
             DB::rollback();
+            dd($e);
             return ['error' => $e->getMessage()];
         }
     }
