@@ -100,13 +100,17 @@ class ShowBlitarRayaController extends Controller
         
             $tabel = $html->find('tbody',0);
             $dataJadi = array();
+
+            $blitar['odr'] = 0;
+            $blitar['otg'] = 0;
             $blitar['odp'] = 0;
             $blitar['pdp'] = 0;
             $blitar['confirm'] = 0;
-            $lastUpdate = $html->find('center small i span',0)->innertext;
-            // $messages = "*PEMBAHARUAN DATA COVID-19 JAWA TIMUR* \r\n";
             
-            // $messagesCity = '';
+            $lastUpdate = $html->find('center small i span',0)->innertext;
+            $messages = "*PEMBAHARUAN DATA COVID-19 KOTA BLITAR* \r\n";
+            
+            $messagesBlitar = '';
     
             foreach ($tabel->find('tr') as $key => $row) {
                 if ($row->find('td',1)->innertext == 'TOTAL') {
@@ -123,38 +127,46 @@ class ShowBlitarRayaController extends Controller
                 $dataJadi[$key]['confirm_die'] = $row->find('td',8)->innertext;
                 $dataJadi[$key]['last_update'] = $lastUpdate;
                 
-                // $messagesCity .= "*".$dataJadi[$key]['city']."* \r\n";
-                // $messagesCity .= "+ *Positiv* : ". $dataJadi[$key]['confirm'] ." \r\n";
-                // $messagesCity .= "+ *PDP* : ". $dataJadi[$key]['pdp'] ." \r\n";
-                // $messagesCity .= "+ *ODP* : ". $dataJadi[$key]['odp'] ." \r\n";
-                // $messagesCity .= "---------------------------------------\r\n";
+                // Messages by village
+                $messagesBlitar .= "*".$dataJadi[$key]['village']."* \r\n";
+                $messagesBlitar .= "+ *Positiv* : ". $dataJadi[$key]['confirm'] ." |   ";
+                $messagesBlitar .= "+ *PDP* : ". $dataJadi[$key]['pdp'] ." |   ";
+                $messagesBlitar .= "+ *ODP* : ". $dataJadi[$key]['odp'] ." |   ";
+                $messagesBlitar .= "+ *OTG* : ". $dataJadi[$key]['otg'] ." |   ";
+                $messagesBlitar .= "+ *ODR* : ". $dataJadi[$key]['odr'] ." |   ";
+                $messagesBlitar .= "---------------------------------------\r\n";
+
+                // Add to Blitar data
+                $blitar['odr'] =  $blitar['odr'] + $dataJadi[$key]['odr'];
+                $blitar['otg'] =  $blitar['otg'] + $dataJadi[$key]['otg'];
+                $blitar['odp'] =  $blitar['odp'] + $dataJadi[$key]['odp'];
+                $blitar['pdp'] = $blitar['pdp'] + $dataJadi[$key]['pdp'];
+                $blitar['confirm'] = $blitar['confirm'] + $dataJadi[$key]['confirm'];
+
                     // print_r($dataJadi);
                 if ( ! $testing ) {
                     $data = VillageData::create($dataJadi[$key]);
                 }
             }
-            // dd($dataJadi);
-            // $messages .= "_".$lastUpdate."_ \r\n \r\n";
-            // $messages .= "\r\n";
-            // $messages .= "*Jawa Timur* \r\n";
-            // $messages .= "+ *Positiv* : ". $jatim['confirm'] ." \r\n";
-            // $messages .= "+ *PDP* : ". $jatim['pdp'] ." \r\n";
-            // $messages .= "+ *ODP* : ". $jatim['odp'] ." \r\n";
-            // $messages .= "---------------------------------------\r\n";
-            // $messages .= "*Blitar Raya* \r\n";
-            // $messages .= "+ *Positiv* : ". $blitar['confirm'] ." \r\n";
-            // $messages .= "+ *PDP* : ". $blitar['pdp'] ." \r\n";
-            // $messages .= "+ *ODP* : ". $blitar['odp'] ." \r\n";
-            // $messages .= "---------------------------------------\r\n";
-            // $messages .= "\r\n";
-            // $messages .= "\r\n";
-            // $messages .= "*Data Kota Se-Jawa Timur* \r\n";
-            // $messages .= "---------------------------------------\r\n";
-            // $messages .= $messagesCity;
+
+            $messages .= "_".$this->getServerLastUpdate()."_ \r\n \r\n";
+            $messages .= "\r\n";
+            $messages .= "*Kota Blitar* \r\n";
+            $messages .= "+ *Positiv* : ". $blitar['confirm'] ." \r\n";
+            $messages .= "+ *PDP* : ". $blitar['pdp'] ." \r\n";
+            $messages .= "+ *ODP* : ". $blitar['odp'] ." \r\n";
+            $messages .= "+ *OTG* : ". $blitar['otg'] ." \r\n";
+            $messages .= "+ *ODR* : ". $blitar['odr'] ." \r\n";
+            $messages .= "---------------------------------------\r\n";
+            $messages .= "\r\n";
+            $messages .= "\r\n";
+            $messages .= "*Data Kelurahan Se-Kota Blitar* \r\n";
+            $messages .= "---------------------------------------\r\n";
+            $messages .= $messagesBlitar;
 
             DB::commit();
             
-            // $this->sendNotifTelegram($messages);
+            $this->sendNotifTelegram($messages);
             return true;
 
         } catch (\Exception $e) {
@@ -162,18 +174,13 @@ class ShowBlitarRayaController extends Controller
             return ['error' => $e->getMessage()];
         }
     }
-    // private function sendNotifTelegram($messages)
-    // {
-    //     $response = Telegram::sendMessage([
-    //         'chat_id' => '34560670', 
-    //         'parse_mode' => 'markdown',
-    //         'text' => $messages
-    //     ]);
-    //     return $response;
-    // }
-    // public function telegramWebhookUpdates()
-    // {
-    //     $updates = Telegram::getWebhookUpdates();
-    //     return $update;
-    // }
+    private function sendNotifTelegram($messages)
+    {
+        $response = Telegram::sendMessage([
+            'chat_id' => '34560670', 
+            'parse_mode' => 'markdown',
+            'text' => $messages
+        ]);
+        return $response;
+    }
 }
