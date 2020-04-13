@@ -10,7 +10,7 @@ use DB;
 class ShowBlitarRayaController extends Controller
 {
     private $blitarUrl = 'http://petasebaran.covid19.blitarkota.go.id';
-    private $dailyCheckUpdate = 16; // 1-24 hour
+    private $dailyCheckUpdate = 14; // 1-24 hour
 
     /**
      * Create a new controller instance.
@@ -35,7 +35,7 @@ class ShowBlitarRayaController extends Controller
     private function checkIfNeedUpdate()
     {
         $hour = date('H');
-
+        
         if($hour > $this->dailyCheckUpdate) { 
             $blitarLastUpdateLocal = VillageData::where('city', 'KOTA BLITAR')->orderBy('id', 'desc')->first();
 
