@@ -143,7 +143,6 @@ class ShowBlitarRayaController extends Controller
                 $blitar['pdp'] = $blitar['pdp'] + (int) $dataJadi[$key]['pdp'];
                 $blitar['confirm'] = $blitar['confirm'] + (int) $dataJadi[$key]['confirm'];
 
-                    // print_r($dataJadi);
                 if ( ! $testing ) {
                     $data = VillageData::create($dataJadi[$key]);
                 }
