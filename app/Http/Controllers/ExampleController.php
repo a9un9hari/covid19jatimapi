@@ -202,7 +202,6 @@ class ExampleController extends Controller
             'text' => $messages
         ]);
           
-        // $messageId = $response->getMessageId();
         return $response;
     }
     public function telegramWebhookUpdates()
