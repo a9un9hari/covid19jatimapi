@@ -39,7 +39,7 @@ class ShowBlitarRayaController extends Controller
         if($hour > $this->dailyCheckUpdate) { 
             $blitarLastUpdateLocal = VillageData::where('city', 'KOTA BLITAR')->orderBy('id', 'desc')->first();
 
-            $lastUpdateLocal = VillageData::max('created_at');
+            $lastUpdateLocal = $blitarLastUpdateLocal->created_at;
             $dateTimestampLocal = strtotime($lastUpdateLocal);
             $dateLocal = date('Y-m-d', $dateTimestampLocal);
             $dataNow = date('Y-m-d');
