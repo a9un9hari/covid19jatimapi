@@ -134,7 +134,7 @@ class ShowBlitarRayaController extends Controller
                 $messagesBlitar .= "+ *ODP* : ". $dataJadi[$key]['odp'] ." |   ";
                 $messagesBlitar .= "+ *OTG* : ". $dataJadi[$key]['otg'] ." |   ";
                 $messagesBlitar .= "+ *ODR* : ". $dataJadi[$key]['odr'] ." |   ";
-                $messagesBlitar .= "\r\n---------------------------------------\r\n";
+                $messagesBlitar .= "\r\n------------------------------------------------------------------------------\r\n";
 
                 // Add to Blitar data
                 $blitar['odr'] =  $blitar['odr'] + (int) $dataJadi[$key]['odr'];
