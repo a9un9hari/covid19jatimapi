@@ -11,12 +11,6 @@
 |
 */
 
-// $router->get('/', function () use ($router) {
-    // $url['url'] = $_SERVER['HTTP_ORIGIN'];
-    // return response($url);
-//     return $router->app->version();
-// });
-
 $router->get('/', 'ExampleController@index');
 $router->get('/telegram', 'ExampleController@sendNotifTelegram');
 
@@ -26,8 +20,3 @@ $router->get('/blitar', 'JatimController@blitar');
 
 $router->get('/map/blitar', 'ShowBlitarRayaController@showBlitarRaya');
 $router->get('/map/blitar/{village}', 'ShowBlitarRayaController@showVillage');
-// $router->post('/<token>/webhook', function () {
-//     $updates = Telegram::getWebhookUpdates();
-
-//     return 'ok';
-// });
