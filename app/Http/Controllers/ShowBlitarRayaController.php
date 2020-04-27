@@ -10,7 +10,7 @@ use DB;
 class ShowBlitarRayaController extends Controller
 {
     private $blitarUrl = 'http://petasebaran.covid19.blitarkota.go.id';
-    private $dailyCheckUpdate = 14; // 1-24 hour
+    private $dailyCheckUpdate = 13; // 1-24 hour
 
     /**
      * Create a new controller instance.
