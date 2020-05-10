@@ -103,6 +103,11 @@ class JatimController extends Controller
         return response($return);
     }
 
+    public function forceUpdate()
+    {
+        $this->getUpdate();
+    }
+
     public function blitar()
     {
         $this->checkIfNeedUpdate();
