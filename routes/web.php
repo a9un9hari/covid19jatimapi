@@ -16,6 +16,7 @@ $router->get('/telegram', 'ExampleController@sendNotifTelegram');
 
 // Jatim
 $router->get('/status', 'JatimController@status');
+$router->get('/status/forceupdate', 'JatimController@forceUpdate');
 $router->get('/blitar', 'JatimController@blitar');
 
 $router->get('/map/blitar', 'ShowBlitarRayaController@showBlitarRaya');

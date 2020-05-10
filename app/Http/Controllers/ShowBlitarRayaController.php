@@ -53,6 +53,11 @@ class ShowBlitarRayaController extends Controller
         }
     }
 
+    public function forceUpdate()
+    {
+        $this->getUpdate();
+    }
+
     public function showBlitarRaya()
     {
         $this->checkIfNeedUpdate();
