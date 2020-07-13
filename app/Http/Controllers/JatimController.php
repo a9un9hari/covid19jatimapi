@@ -115,11 +115,11 @@ class JatimController extends Controller
         $return = [];
         $dataKotaBlitar = DataJatim::where('id_kabko', 33)->orderBy('updated_at', 'desc')->first();
         $dataKabBlitar = DataJatim::where('id_kabko', 7)->orderBy('updated_at', 'desc')->first();
-        $dataJatimODR = DataJatim::latest()->limit(38)->get()->sum('odr');
-        $dataJatimOTG = DataJatim::latest()->limit(38)->get()->sum('otg');
-        $dataJatimODP = DataJatim::latest()->limit(38)->get()->sum('odp');
-        $dataJatimPDP = DataJatim::latest()->limit(38)->get()->sum('pdp');
-        $dataJatimConfirm = DataJatim::latest()->limit(38)->get()->sum('confirm');
+        $dataJatimODR = DataJatim::latest()->limit(40)->get()->sum('odr');
+        $dataJatimOTG = DataJatim::latest()->limit(40)->get()->sum('otg');
+        $dataJatimODP = DataJatim::latest()->limit(40)->get()->sum('odp');
+        $dataJatimPDP = DataJatim::latest()->limit(40)->get()->sum('pdp');
+        $dataJatimConfirm = DataJatim::latest()->limit(40)->get()->sum('confirm');
         $lastUpdate = DataJatim::max('updated_at');
         
         $return['last_update'] =  $lastUpdate;
