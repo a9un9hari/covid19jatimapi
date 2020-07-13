@@ -175,6 +175,16 @@ class JatimController extends Controller
                     if ( ! $testing ) { // if not testing insert data
                         $value['odr'] = (int) $value['odr'];
                         $value['id_old'] = $value['id'];
+                        $value['kode'] = ( ! empty($value['kode']) ) ? $value['kode'] : 0;
+                        $value['id_kabko'] = ( ! empty($value['id_kabko']) ) ? $value['id_kabko'] : 0;
+                        $value['lat'] = ( ! empty($value['lat']) ) ? $value['lat'] : 0;
+                        $value['lon'] = ( ! empty($value['lon']) ) ? $value['lon'] : 0;
+                        $value['lat1'] = ( ! empty($value['lat1']) ) ? $value['lat1'] : 0;
+                        $value['lon1'] = ( ! empty($value['lon1']) ) ? $value['lon1'] : 0;
+                        $value['lat2'] = ( ! empty($value['lat2']) ) ? $value['lat2'] : 0;
+                        $value['lon2'] = ( ! empty($value['lon2']) ) ? $value['lon2'] : 0;
+                        $value['lat3'] = ( ! empty($value['lat3']) ) ? $value['lat3'] : 0;
+                        $value['lon3'] = ( ! empty($value['lon3']) ) ? $value['lon3'] : 0;
                         $data = DataJatim::create($value);
                     }
 
