@@ -35,8 +35,7 @@ class JatimController extends Controller
     {
         try {
             $html = file_get_contents($this->jatimUrl);
-            $return  = $this->getStringBetween($html, 'var datakabupaten=', 'var hariini=', 2 );
-
+            $return  = $this->getStringBetween($html, 'var datakabupaten=', 'var spesimen=', 2 );
             $arr = json_decode($return);
             $lastUpdate = '';
             foreach ($arr as $key => $value) {
@@ -139,7 +138,7 @@ class JatimController extends Controller
         DB::beginTransaction();
         try {
             $html = file_get_contents($this->jatimUrl);
-            $return  = $this->getStringBetween($html, 'var datakabupaten=', 'var hariini=', 2 );
+            $return  = $this->getStringBetween($html, 'var datakabupaten=', 'var spesimen=', 2 );
             $arr = json_decode($return, true);
             
             $jatim['odr'] = 0;
